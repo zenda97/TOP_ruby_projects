@@ -1,5 +1,5 @@
 class Board
-
+    attr_accessor :board
     def initialize
         @board = [["A ", "| ", " ", "| ", " ", "| ", " "],
                   ["  -", "-", "-", "-", "-", "-", "---"],
@@ -16,8 +16,75 @@ class Board
     end
 
     def place_token(x, y, token)
-        @board[x][y] = token
-        # dodelat hlidani aby policko bylo prazdne
+        if @board[x][y] == " "
+            @board[x][y] = token
+            return true
+        else
+            return false
+        end
+        
+    end
+
+    def check_rows(token)
+        winner = false
+        for i in [0, 2, 4] do 
+            for j in [2, 4, 6] do
+                if @board[i][j] == token
+                    winner = true
+                else
+                    winner = false
+                    break
+                end
+            end
+            if winner
+                return winner
+            end
+        end
+        return winner
+    end
+
+    def check_columns(token)
+        winner = false
+        for i in [2, 4, 6] do
+            for j in [0, 2, 4] do
+                if @board[j][i] == token
+                    winner = true
+                else
+                    winner = false
+                    break
+                end
+            end
+            if winner
+                return winner
+            end
+        end
+        return winner
+    end
+
+    def check_diagonals(token)
+        winner = false
+        for i in [0, 2, 4] do
+            if @board[i][i+2] == token
+                winner = true
+            else
+                winner = false
+                break
+            end
+        end
+
+        if winner
+            return winner
+        end
+
+        for j in [0, 2, 4] do
+            if @board[j][6-j] == token
+                winner = true
+            else
+                winner = false
+                break
+            end
+        end
+        return winner
     end
 end
 
@@ -37,21 +104,26 @@ class Game
         end
     end
 
-    def check_for_winner # dodelat kontrolu konce hry
-        false
+    def check_for_winner(token)
+        if @board.check_rows(token)
+            return token
+        elsif @board.check_columns(token)
+            return token
+        elsif @board.check_diagonals(token)
+            return token
+        else
+            return false
+        end
     end
 
     def get_x(coordinates) # Map ABC to numbers
         case coordinates[0]
         when 'A', 'a'
             return 0
-            #x = 0
         when 'B', 'b'
             return 2
-            #x = 2
         when 'C', 'c'
             return 4
-            #x = 4
         end
     end
 
@@ -70,7 +142,7 @@ class Game
     end
 
     def start_game
-        until check_for_winner
+        while true
             @board.print_board
             puts("Player's #{@player} turn")
             while true
@@ -79,13 +151,20 @@ class Game
                 if /^[ABCabc][123]$/.match(coordinates) # regex checking valid input
                     x = get_x(coordinates)
                     y = get_y(coordinates)
-                    @board.place_token(x, y, @player)
+                    
+                    if @board.place_token(x, y, @player) == false # If the spot is not empty, ask for input again
+                        next
+                    end
+                    if check_for_winner(@player)
+                        @board.print_board
+                        puts("#{@player} wins!")
+                        return
+                    end
                     switch_players
                     break
                 end
             end
         end
-
     end
 end
 
