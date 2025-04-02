@@ -142,8 +142,14 @@ class Game
     end
 
     def start_game
+        counter = 0
         while true
             @board.print_board
+            counter += 1
+            if counter > 9
+                puts("It's a tie!")
+                return
+            end
             puts("Player's #{@player} turn")
             while true
                 puts("Enter coordinates (A1, B3...)")
