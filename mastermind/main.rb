@@ -7,11 +7,16 @@
 # k cemu potrebuju board?
 # game progress
 
+# puvodne jsem si ve funkci guess_comparison predaval pole Pegu
+# ale pak jsem neporovnaval jejich barvy, ale objekty jako takovy
+# nedokazal jsem z toho rozumne dostat barvy jinak nez tak, ze jsem si udelal
+# nove pole jen tech barev
+
 class Peg
   attr_accessor :color
   @@colors = ["blue", "yellow", "red", "green", "purple", "pink"] 
   def initialize(color)
-    @color = @@colors[color]
+    @color = color
   end
 
   def compare(color)
@@ -22,9 +27,9 @@ class Peg
     end
   end
 
-  def self.colors
-    @@colors
-  end
+   def self.colors
+     @@colors
+   end
 end
 
 class Board
@@ -66,7 +71,12 @@ class CodeBreaker
           break
         end
       end
-    end  
+    end 
+    @result = []
+    @guess.each do |element| 
+      @result.push(Peg.new(element))
+    end
+    return @result 
   end
 end
 
@@ -75,46 +85,73 @@ class CodeMaker
   # create secret code
   # compare a guess to the secret code
   # provide feedback black/white pegs
+  @@colors = ["blue", "yellow", "red", "green", "purple", "pink"]
   
   def generate_secret_code
-    @secret_code = []
-    4.times { @secret_code.push(Peg.new(rand(6))) }
+    @secret_code = Array.new()
+    4.times { @secret_code.push(Peg.new(@@colors[rand(6)])) }
   end
 
   def initialize
     self.generate_secret_code
   end
 
+  def secret_code
+    @secret_code
+  end
+
 end
 
 class Game
-  #game loop
-  # keeps track of attempts
-  # check win/loss conditions
-  # handles user input/output
-  # codemaker si vymysli kod
-  # codebreaker zada svuj guess
-  # codemaker porovna se svym kodem a vrati bila/cerna kolecka viz pravidla
-  # zvysi se counter pokusu
-  # vyhodnoti se vyhra
-  # pokud codebreaker nevyhral, smycka opet na zacatek
-  def initialize
-    @codemaker = CodeMaker.new
-    @codebreaker = CodeBreaker.new
-    puts(
-    "---RULES---\n
+  @@rules_msg = "---RULES---\n
     Codemaker creates a secret code of four colors (out of six possible).\n
     Colors can repeat.\n
     Codebreaker tries to guess the colors in 12 turns\n
     Guess is submitted in this form: color color color color .\n
-    Feedback is black and white circles. White means right color, wrong position.\n
-    Black means right color and position. Nothing means wrong color.\n
-    The order of feedback doesn not correspond to the guessed positions.\n")
+    Feedback is black and white circles. O means right color, wrong position.\n
+    X means right color and position. Nothing means wrong color.\n
+    The order of feedback doesn not correspond to the guessed positions.\n"
+
+  def guess_comparison(secret, guess)
+    @result = Array.new() # tohle pak na konci jeste musim zamichat, aby to nebylo tak jednoduche
+    colors_secret = []
+    colors_guess = []
+    secret.each { |element| colors_secret.push(element.color)}
+    guess.each { |element| colors_guess.push(element.color)}
+
+    puts("Guess comparison method")
+    puts("Secret code")
+    puts(colors_secret)
+    puts("Guess")
+    puts(colors_guess)
+
+    for element in colors_guess
+      if colors_secret.include?(element)
+        if colors_secret.index(element) == colors_guess.index(element)
+          @result.push("X")
+        else
+          @result.push("O")
+        end
+      else
+        @result.push("")
+      end
+    end
+    return @result
+  end
+
+  def initialize
+    @codemaker = CodeMaker.new
+    @codebreaker = CodeBreaker.new
+    puts(@@rules_msg)
+    @codemaker.secret_code.each { |element| puts("#{element.color}")  }  
 
     counter = 0
     while counter < 12 do
-      @codebreaker.guess_input
-      puts(@codebreaker.guess)
+      @input = @codebreaker.guess_input
+      #puts(@codebreaker.guess)
+      res = guess_comparison(@codemaker.secret_code, @input)
+      puts(res)
+      counter += 1
     end
   end
 end
