@@ -121,9 +121,9 @@ class Game
 
     puts("Guess comparison method")
     puts("Secret code")
-    puts(colors_secret)
+    puts(colors_secret.join(" "))
     puts("Guess")
-    puts(colors_guess)
+    puts(colors_guess.join(" "))
 
     for element in colors_guess
       if colors_secret.include?(element)
@@ -132,8 +132,8 @@ class Game
         else
           @result.push("O")
         end
-      else
-        @result.push("")
+      #else
+       # @result.push("")
       end
     end
     return @result
@@ -150,7 +150,7 @@ class Game
       @input = @codebreaker.guess_input
       #puts(@codebreaker.guess)
       res = guess_comparison(@codemaker.secret_code, @input)
-      puts(res)
+      puts(res.shuffle!.join(""))
       counter += 1
     end
   end
