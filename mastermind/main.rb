@@ -4,14 +4,6 @@
 # which is gonna be split into an array of four
 # colors in the code can repeat but no blanks
 
-# k cemu potrebuju board?
-# game progress
-
-# puvodne jsem si ve funkci guess_comparison predaval pole Pegu
-# ale pak jsem neporovnaval jejich barvy, ale objekty jako takovy
-# nedokazal jsem z toho rozumne dostat barvy jinak nez tak, ze jsem si udelal
-# nove pole jen tech barev
-
 class Peg
   attr_accessor :color
   @@colors = ["blue", "yellow", "red", "green", "purple", "pink"] 
@@ -59,8 +51,6 @@ class CodeBreaker
       else
         @guess.each do |element|
           unless Peg.colors.include?(element)
-            #puts("Wrong input. Enter four colors.\n")
-            #next
             @wrong_input_flag = true
           end
         end
@@ -84,7 +74,7 @@ class CodeMaker
   attr_accessor :secret_code
   # create secret code
   # compare a guess to the secret code
-  # provide feedback black/white pegs
+  # provide feedback black/white pegs (X or O)
   @@colors = ["blue", "yellow", "red", "green", "purple", "pink"]
   
   def generate_secret_code
@@ -104,7 +94,7 @@ end
 
 class Game
   @@rules_msg = "---RULES---\n
-    Codemaker creates a secret code of four colors (out of six possible).\n
+    Codemaker creates a secret code of four colors (out of six possible: blue, yellow, green, purple, pink, red).\n
     Colors can repeat.\n
     Codebreaker tries to guess the colors in 12 turns\n
     Guess is submitted in this form: color color color color .\n
@@ -113,7 +103,7 @@ class Game
     The order of feedback doesn not correspond to the guessed positions.\n"
 
   def guess_comparison(secret, guess)
-    @result = Array.new() # tohle pak na konci jeste musim zamichat, aby to nebylo tak jednoduche
+    @result = Array.new()
     colors_secret = []
     colors_guess = []
     secret.each { |element| colors_secret.push(element.color)}
@@ -132,8 +122,6 @@ class Game
         else
           @result.push("O")
         end
-      #else
-       # @result.push("")
       end
     end
     return @result
@@ -148,7 +136,6 @@ class Game
     counter = 0
     while counter < 12 do
       @input = @codebreaker.guess_input
-      #puts(@codebreaker.guess)
       res = guess_comparison(@codemaker.secret_code, @input)
       puts(res.shuffle!.join(""))
       counter += 1
